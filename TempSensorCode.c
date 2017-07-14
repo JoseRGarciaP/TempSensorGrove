@@ -3,11 +3,17 @@
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <math.h>
 
-void main()
+int main(int argc, char *argv[])
 {
 
-	char comandoSalir[5];
+	char exit[10];
+	char data[2];
+	int adc_data;
+	float sensor_value_tmp;
+	float resistance;
+	float cTemperature;
 	
 	// Create I2C bus
 	int file;
@@ -21,9 +27,7 @@ void main()
 	ioctl(file, I2C_SLAVE, 0x50);
 
 	
-	sleep(1);
-	
-	while(strcmp(comando, "FIN") != 0) {
+	while(strcmp(exit, "EXIT") != 0) {
 	
 	// Read 2 bytes of temperature data
 	// temp msb, temp lsb
@@ -31,20 +35,25 @@ void main()
 		printf("Error : Input/Output error \n");
 	} else {
 		// Convert the data
-		float cTemp = (((data[0] * 256 + data[1]) * 175.72) / 65536.0) - 46.85;
-		float fTemp = cTemp * 1.8 + 32;
+		
+		adc_data = (data[1] | data[0] << 0x08);
+		sensor_value_tmp = (adc_data / (float) 4095 * 2.95 * 2 / 3.3 * 1023);
+		resistance = (1023 - sensor_value_tmp) * 10000 / sensor_value_tmp;		
+		cTemperature = (1 / (log(resistance / 10000) / bValue + 1 / 298.15) - 273.15);
+			
 
 		// Output data to screen
-		printf("Temperature in Celsius : %.2f C \n", cTemp);
-		printf("Temperature in Fahrenheit : %.2f F \n", fTemp);
+		printf("Temperature in Celsius : %.2f C \n", cTemperature);
+
 	}
 	
 	
 	
-	printf("'FIN' para acabar \n");
-	scanf("%s", comando);
+	printf("'EXIT' to finish, other to resume... \n");
+	scanf("%s", exit);
 	
 	}
 
+	return 0;
 	
 }
