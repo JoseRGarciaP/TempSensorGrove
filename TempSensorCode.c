@@ -8,12 +8,15 @@
 int main(int argc, char *argv[])
 {
 
-	char exit[10];
+	char exits[10];
 	char data[2];
 	int adc_data;
 	float sensor_value_tmp;
+	int bValue;
 	float resistance;
 	float cTemperature;
+	
+	bValue = 4250;
 	
 	// Create I2C bus
 	int file;
@@ -27,7 +30,7 @@ int main(int argc, char *argv[])
 	ioctl(file, I2C_SLAVE, 0x50);
 
 	
-	while(strcmp(exit, "EXIT") != 0) {
+	while(strcmp(exits, "EXIT") != 0) {
 	
 	// Read 2 bytes of temperature data
 	// temp msb, temp lsb
@@ -50,7 +53,7 @@ int main(int argc, char *argv[])
 	
 	
 	printf("'EXIT' to finish, other to resume... \n");
-	scanf("%s", exit);
+	scanf("%s", exits);
 	
 	}
 
